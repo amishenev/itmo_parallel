@@ -1,0 +1,30 @@
+name: Build PDF document
+
+env:
+  working_dir: Book_TeX
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '$working_dir/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build PDF file
+        uses: xu-cheng/latex-action@v2
+        with:
+          working_directory: $working_dir
+          root_file: main.tex
+          latexmk_shell_escape: true
+
+      - name: Add pdf to comment
+        uses: gavv/pull-request-artifacts@v1.0.0
+        with:
+          commit: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: $working_dir/main.pdf
